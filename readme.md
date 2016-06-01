@@ -1,8 +1,10 @@
-# Sontime Chat Client
+# Sontime Chat Bot
 
 ## Vision
 
 To create an "intelligent" bot in order to interact with Sontime via Slack or Skype chat and manage your timesheet by typing free text messages. In long term it would be great to create a Sontime client which understands oral speech.
+
+![Sontime Chat Bot Vision Overview](_docs/Sontime-Chat-Bot-Vision.png "Sontime Chat Bot Vision")
 
 ## Technology Overview
 

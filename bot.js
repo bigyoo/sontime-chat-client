@@ -15,7 +15,7 @@ module.exports = {
         var dialog = new builder.LuisDialog(LUIS_URL);
         bot.add('/', dialog);
         bot.add('/promptUserName', promptUserNameDialog);
-        // bot.add('/promptPassword', );
+        bot.add('/promptPassword', promptPasswordDialog);
 
         // Add intent handlers
         dialog.on('Login', onLoginIntent);
@@ -68,56 +68,49 @@ var onDefault = function (session, results) {
 
 // asks for login name
 var promptUserNameDialog = [
-        function (session, next) {
+        function (session, results, next) {
             if (noUserNameInSession(session)) {
                 builder.Prompts.text(session, "What's you login name?");
-            }else{
+            }else if(noPasswordInSession(session)){
                 // console.log('login: %s', util.inspect(session.userData.login, false, null));
-                session.send("I already know your name: %s", session.userData.login);
-                next();
-
-                // FIXME: if you give your login name as "login as joe", the next() doesn't jump to the next function
+                session.send("I already know your name: %s. But I don't know your password.", session.userData.login);
+                session.beginDialog("/promptPassword");
+                // next();
+            }else{
+                // we've got the username and password in session
+                session.endDialog();
             }
         },
         function (session, results) {
             if (results && results.response){
                 session.userData.login = results.response;
-               next();
-            }else{
-               next();
             }
-        },
+
+            if(noPasswordInSession(session)){
+                session.beginDialog("/promptPassword");
+            }else{
+                session.endDialog();
+            }
+        }];
+
+
+var promptPasswordDialog = [
         function (session, next){
             if (noPasswordInSession(session)) {
                 builder.Prompts.text(session, "What's you password?");
             }else{
                 session.send("I already know your password");
-                next();
-            }
-        },
-        function (session, results, next) {
-        if (results.response){
-            session.userData.password= results.response;
-            session.endDialog();
-        }
-    }
-    ];
-
-// asks for password
-var promptPasswordDialog = [
-        function (session, next) {
-            if (noPasswordInSession(session)) {
-                builder.Prompts.text(session, "What's you password?");
-            }else{
-                session.send("I already know password.");
                 session.endDialog();
             }
         },
-        function (session, results) {
-            session.userData.password = results.response;
+        function (session, results, next) {
+            if (results.response){
+                session.userData.password= results.response;
+            }
             session.endDialog();
-        }
+    }
     ];
+
 
 // returns true, if there is no user name in session's userData object.
 var noUserNameInSession = function (session){

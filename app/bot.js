@@ -1,38 +1,43 @@
-var restify = require('restify');
+'use strict';
+
 var builder = require('botbuilder');
+var restify = require('restify');
 var util = require('util');
 
-// URL of LUIS model published as a HTTP service
-var LUIS_URL = "https://api.projectoxford.ai/luis/v1/application?id=1bb1085a-f7b1-4f91-9e37-e9a8f10dd7e3&subscription-key=c35fcb1a65064435a3b6d8ae1131f609";
+// Create bot
+var sontimeChatBot = {
+    botInstance: new builder.BotConnectorBot({appId: 'YourAppId', appSecret: 'YourAppSecret'}),
+    LUIS_URL: "https://api.projectoxford.ai/luis/v1/application?id=1bb1085a-f7b1-4f91-9e37-e9a8f10dd7e3&subscription-key=c35fcb1a65064435a3b6d8ae1131f609"
 
+};
 
-module.exports = {
+sontimeChatBot.setupBot = function(){
+    var dialog = new builder.LuisDialog(sontimeChatBot.LUIS_URL);
 
-    main: function () {
-        // Create bot and add dialogs
-        var bot = new builder.BotConnectorBot({appId: 'YourAppId', appSecret: 'YourAppSecret'});
+    sontimeChatBot.botInstance.add('/', dialog);
+    sontimeChatBot.botInstance.add('/promptUserName', promptUserNameDialog);
+    sontimeChatBot.botInstance.add('/promptPassword', promptPasswordDialog);
 
-        var dialog = new builder.LuisDialog(LUIS_URL);
-        bot.add('/', dialog);
-        bot.add('/promptUserName', promptUserNameDialog);
-        bot.add('/promptPassword', promptPasswordDialog);
+    // Add intent handlers
+    dialog.on('Login', onLoginIntent);
+    dialog.on('Logout', onLogoutIntent);
+    dialog.onDefault(onDefault);
+};
 
-        // Add intent handlers
-        dialog.on('Login', onLoginIntent);
-        dialog.on('Logout', onLogoutIntent);
-        dialog.onDefault(onDefault);
-
-
+sontimeChatBot.startBotServer = function(){
         // Setup Restify Server
         var server = restify.createServer();
-        server.post('/api/messages', bot.verifyBotFramework(), bot.listen());
+        server.post('/api/messages', sontimeChatBot.botInstance.verifyBotFramework(), sontimeChatBot.botInstance.listen());
         server.listen(process.env.port || 3978, function () {
             console.log('%s listening to %s', server.name, server.url);
         });
+};
 
-    }
 
-}
+
+
+
+
 
 
 var onLoginIntent = function (session, results) {
@@ -66,7 +71,9 @@ var onDefault = function (session, results) {
     session.send("Sorry but I don't understand. Doh! I'm just a bot actually. :)");
 }
 
-// asks for login name
+/**
+ * Asks for login name.
+ */
 var promptUserNameDialog = [
         function (session, results, next) {
             if (noUserNameInSession(session)) {
@@ -112,12 +119,20 @@ var promptPasswordDialog = [
     ];
 
 
-// returns true, if there is no user name in session's userData object.
+/**
+ * Returns true, if there is no user name in session's userData object.
+ *
+ */
 var noUserNameInSession = function (session){
     return !session.userData.login;
 }
 
-// returns true, if there is no password in session's userData object.
+/**
+ * Returns true, if there is no password in session's userData object.
+ */
 var noPasswordInSession = function (session){
     return !session.userData.password;
 }
+
+
+module.exports = sontimeChatBot;

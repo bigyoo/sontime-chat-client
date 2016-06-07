@@ -1,23 +1,24 @@
 {
-    "name": "sontime-chat-client",
-    "version": "1.0.0",
-    "description": "What is Bot Builder for Node.js and why should I use it?",
-    "main": "app.js",
-    "scripts": {
-        "test": "jasmine-node tests/*.spec.js"
-    },
-    "author": "joe",
-    "license": "ISC",
-    "dependencies": {
-        "axios": "^0.11.0",
-        "botbuilder": "^0.11.1",
-        "restify": "^4.1.0",
-        "q": "^1.4.1"
-    },
-    "devDependencies": {
-        "browserify": "~13.0.x",
-        "jasmine-core": "~2.3.x",
-        "jasmine-node": "^1.14.x",
-        "watchify": "~3.7.x"
-    }
+  "name": "sontime-chat-client",
+  "version": "1.0.0",
+  "description": "What is Bot Builder for Node.js and why should I use it?",
+  "main": "app.js",
+  "scripts": {
+        "test": "jasmine-node tests/bot.spec.js"
+  },
+  "author": "joe",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.11.0",
+    "botbuilder": "^0.11.1",
+    "restify": "^4.1.0",
+    "q": "^1.4.1"
+  },
+  "devDependencies": {
+    "browserify": "~13.0.x",
+    "express": "^4.13.4",
+    "jasmine-core": "~2.3.x",
+    "jasmine-node": "^1.14.x",
+    "watchify": "~3.7.x"
+  }
 }

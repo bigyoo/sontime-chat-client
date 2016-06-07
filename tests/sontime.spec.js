@@ -35,7 +35,7 @@ var createMockAxios = function (urlToResponseMap) {
         // Note that calling the .then(function(){..}) will
         // still won't be automatically resolved only when that
         // thread yields execution. So you need to write
-        // any Jasmine tasks to use this.
+        // async Jasmine tasks to use this.
         return deferred.promise;
     };
     return this;

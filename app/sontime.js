@@ -5,7 +5,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 var sontime = {
     axios: require('axios'),
-    baseUrl: "https://192.168.9.47:8443/sontime2-service/rest/",
+    baseUrl: "https://192.168.9.47:8443/sontime2-service/rest/"
 };
 
 /**

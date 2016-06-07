@@ -2,8 +2,6 @@ var q = require('q');
 var builder = require('botbuilder');
 var tools = require('../app/tools')
 
-
-
 describe('bot', function () {
     it('should understand login intent and prompt for credentials', function (done) {
         // ------ arrange

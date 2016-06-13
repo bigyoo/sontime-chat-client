@@ -1,6 +1,6 @@
 var q = require('q');
 var builder = require('botbuilder');
-var tools = require('../app/tools')
+var tools = require('../app/tools');
 
 describe('bot', function () {
     it('should understand login intent and prompt for credentials', function (done) {
@@ -28,10 +28,13 @@ describe('bot', function () {
         var mockLuisServer = require('./luis_server/mockLuisServer');
         mockLuisServer.startServer(mockedResponse);
 
+
+
+
         // starts a chat bot with simple text input
        var bot = startATextBot(mockLuisServer.MOCK_LUIS_SERVER_URL);
 
-        // ---------- act & assert
+        // ---------- act
         var message = {
             text: "my test input",
             from: {
@@ -39,21 +42,26 @@ describe('bot', function () {
             }
 
         };
+        
+        // bot.botInstance.emit("send", message);
 
         bot.botInstance.processMessage(message, function (error, reply) {
-            // tools.toConsole("Error: ", error);
-            // tools.toConsole("Reply: ", reply);
+            // ---------- assert
             expect(reply).toEqual({text:'I think you\'d like to login to Sontime, but I don\'t know your full credentials.'});
+
+            // --------- tear down
+            // bot.botInstance.processMessage({text: "/quit", from: "from-address"});
+            mockLuisServer.stopServer();
+            // bot.botInstance.endDialog();
+            // console.log(bot.botInstance);
+            done();
         });
-
-        done();
-
     });
 });
 
 /**
  * Starts a new but, using the given LUIS url,
- * but it replaces the bot instace with a text bot
+ * but it replaces the bot instance with a text bot
  * (which reads inputs from standard input)
  * to make testing easier.
  *

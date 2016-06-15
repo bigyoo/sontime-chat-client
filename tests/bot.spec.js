@@ -41,14 +41,18 @@ describe('bot', function () {
         testBotWrapper.start(botUnderTest, mockLuisServer.MOCK_LUIS_SERVER_URL);
 
 
-        // ---------- act & assert in callback method
-        testBotWrapper.processMessage(inputMessage, function(err, reply){
-            expect(reply).toEqual({text:'I think you\'d like to login to Sontime, but I don\'t know your full credentials.'});
-            mockLuisServer.stopServer();
-            // testBotWrapper.logMessages();
-            done();
+        // ---------- act
+        testBotWrapper.processMessage(inputMessage)
+            .then(function (reply) {
+                // ----- assert
+                expect(reply).toEqual({text:'I think you\'d like to login to Sontime, but I don\'t know your full credentials.'});
+            }).then(function () {
+                // ----- teardown
+                mockLuisServer.stopServer();
+                done();
+            });
 
             // TODO: chat bot tries to continue this dialogue with a question, but the tests ends before the next message arrives (see console)
-        });
     });
 });
+

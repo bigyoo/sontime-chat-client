@@ -2,6 +2,7 @@
  * Created by joe on 2016.06.15..
  */
 var builder = require('botbuilder');
+var q = require('q');
 
 var testBotWrapper = {
     receivedMessages: [],
@@ -72,8 +73,16 @@ testBotWrapper.logMessages = function () {
  * @param message
  * @param callback
  */
-testBotWrapper.processMessage = function (message, callback){
-    testBotWrapper.botInstance.processMessage(message,callback);
+testBotWrapper.processMessage = function (message){
+    var deferred = q.defer();
+    testBotWrapper.botInstance.processMessage(message, function (error, text) {
+        if (error) {
+            deferred.reject(new Error(error));
+        } else {
+            deferred.resolve(text);
+        }
+    });
+    return deferred.promise;
 }
 
 module.exports = testBotWrapper;

@@ -33,15 +33,8 @@ sontimeChatBot.startBotServer = function(){
         });
 };
 
-
-
-
-
-
-
-
 var onLoginIntent = function (session, results) {
-    console.log('result: %s', util.inspect(results, false, null));
+    console.log('Login intent: %s', util.inspect(results, false, null));
 
 
     var loginName = builder.EntityRecognizer.findEntity(results.entities, 'username');

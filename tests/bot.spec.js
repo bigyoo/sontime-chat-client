@@ -1,11 +1,14 @@
 var q = require('q');
-var builder = require('botbuilder');
-var tools = require('../app/tools');
+var testBotWrapper = require('./bot_test_utils/testBotWrapper');
+var botUnderTest = require('../app/bot');
+
 
 describe('bot', function () {
     it('should understand login intent and prompt for credentials', function (done) {
         // ------ arrange
-        var mockedResponse = {
+
+        // mock response of LUIS server
+        var mockLUISResponse = {
             "query": "login",
             "intents": [
                 {
@@ -24,55 +27,28 @@ describe('bot', function () {
             "entities": []
         };
 
-        // starts a mock LUIS server
-        var mockLuisServer = require('./luis_server/mockLuisServer');
-        mockLuisServer.startServer(mockedResponse);
+        // test input message
+        var inputMessage = {text: "my test input"};
 
 
+        // starts a mock LUIS server and defines its behavior
+        var mockLuisServer = require('./bot_test_utils/mockLuisServer');
+        mockLuisServer.when(inputMessage.text).then(mockLUISResponse);
+        mockLuisServer.startServer();
+
+        // starts a chat bot and wrapping it with a test helper,
+        // to replace the 'real' connector bot with a TextBot
+        testBotWrapper.start(botUnderTest, mockLuisServer.MOCK_LUIS_SERVER_URL);
 
 
-        // starts a chat bot with simple text input
-       var bot = startATextBot(mockLuisServer.MOCK_LUIS_SERVER_URL);
-
-        // ---------- act
-        var message = {
-            text: "my test input",
-            from: {
-                address: "from-address"
-            }
-
-        };
-        
-        // bot.botInstance.emit("send", message);
-
-        bot.botInstance.processMessage(message, function (error, reply) {
-            // ---------- assert
+        // ---------- act & assert in callback method
+        testBotWrapper.processMessage(inputMessage, function(err, reply){
             expect(reply).toEqual({text:'I think you\'d like to login to Sontime, but I don\'t know your full credentials.'});
-
-            // --------- tear down
-            // bot.botInstance.processMessage({text: "/quit", from: "from-address"});
             mockLuisServer.stopServer();
-            // bot.botInstance.endDialog();
-            // console.log(bot.botInstance);
+            // testBotWrapper.logMessages();
             done();
+
+            // TODO: chat bot tries to continue this dialogue with a question, but the tests ends before the next message arrives (see console)
         });
     });
 });
-
-/**
- * Starts a new but, using the given LUIS url,
- * but it replaces the bot instance with a text bot
- * (which reads inputs from standard input)
- * to make testing easier.
- *
- * @param luisUrl
- */
-var startATextBot = function(luisUrl){
-    var bot = require('../app/bot');
-    bot.LUIS_URL = luisUrl;
-    bot.botInstance = new builder.TextBot();
-    bot.setupBot();
-    bot.botInstance.listenStdin();
-
-    return bot;
-}

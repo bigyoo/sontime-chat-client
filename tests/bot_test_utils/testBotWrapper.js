@@ -85,6 +85,41 @@ testBotWrapper.processMessage = function (message){
     return deferred.promise;
 }
 
+/**
+ * Returns the last reply of the bot.
+ *
+ * TODO: something strange here, because the repliedMessages array never contains the first reply
+ *
+ * @returns {*}
+ */
+testBotWrapper.getLastReply = function(){
+    return testBotWrapper.repliedMessages[testBotWrapper.repliedMessages.length-1];
+}
+
+/**
+ * Returns an array containing only the texts of the replied messages.
+ *
+ * @returns {Array}
+ */
+testBotWrapper.getReplyTexts = function(){
+    // maps every object in this array to its text attribute
+    return testBotWrapper.repliedMessages.map(
+       function (repliedMsg) {
+           return {text: repliedMsg.text};
+       } );
+}
+
+/**
+ * Clears all the message histories.
+ *
+ * It worth to clear the histories between test cases.
+ */
+testBotWrapper.clearMessageHistory = function (){
+   testBotWrapper.receivedMessages = [];
+   testBotWrapper.sentMessages = [];
+   testBotWrapper.repliedMessages = [];
+}
+
 module.exports = testBotWrapper;
 
 /**
@@ -94,6 +129,6 @@ module.exports = testBotWrapper;
  * @param message
  */
 function keepMessage(messageHistoryArray, message) {
-    messageHistoryArray[messageHistoryArray.length] = message.text;
+    messageHistoryArray[messageHistoryArray.length] = message;
     console.log("onSend: " + message.text);
 }

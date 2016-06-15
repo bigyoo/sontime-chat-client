@@ -3,6 +3,7 @@
 var builder = require('botbuilder');
 var restify = require('restify');
 var util = require('util');
+var prompts = require('./prompts');
 
 // Create bot
 var sontimeChatBot = {
@@ -41,19 +42,24 @@ var onLoginIntent = function (session, results) {
     if (loginName){
         session.userData.login = loginName.entity;
     }
+    
+    var password = builder.EntityRecognizer.findEntity(results.entities, 'password');
+    if (password){
+        session.userData.password = password.entity;
+    }
 
     if (noUserNameInSession(session) || noPasswordInSession(session)) {
-        session.send("I think you'd like to login to Sontime, but I don't know your full credentials.");
+        session.send(prompts.login_intent_without_login_or_password);
         session.beginDialog('/promptUserName');
     }else{
-        session.send("I think you'd like to login to Sontime, and I know your user name (%s.) and your password too.", session.userData.login);
+        session.send(prompts.login_intent_with_login_and_password, session.userData.login);
     }
 }
 
 
 var onLogoutIntent = function (session, results) {
     console.log('result: %s', util.inspect(results, false, null));
-    session.send("So you'd like to logout from Sontime.");
+    session.send(prompts.logout_intent);
     session.userData.login = "";
     session.userData.password = "";
 }
@@ -61,7 +67,7 @@ var onLogoutIntent = function (session, results) {
 
 var onDefault = function (session, results) {
     console.log('result: %s', util.inspect(results, false, null));
-    session.send("Sorry but I don't understand. Doh! I'm just a bot actually. :)");
+    session.send(prompts.default_intent);
 }
 
 /**
@@ -70,12 +76,10 @@ var onDefault = function (session, results) {
 var promptUserNameDialog = [
         function (session, results, next) {
             if (noUserNameInSession(session)) {
-                builder.Prompts.text(session, "What's you login name?");
+                builder.Prompts.text(session, prompts.prompt_login_name);
             }else if(noPasswordInSession(session)){
-                // console.log('login: %s', util.inspect(session.userData.login, false, null));
-                session.send("I already know your name: %s. But I don't know your password.", session.userData.login);
+                session.send(prompts.login_intent_with_login_but_without_password, session.userData.login);
                 session.beginDialog("/promptPassword");
-                // next();
             }else{
                 // we've got the username and password in session
                 session.endDialog();
@@ -97,9 +101,9 @@ var promptUserNameDialog = [
 var promptPasswordDialog = [
         function (session, next){
             if (noPasswordInSession(session)) {
-                builder.Prompts.text(session, "What's you password?");
+                builder.Prompts.text(session, prompts.prompt_password);
             }else{
-                session.send("I already know your password");
+                session.send(prompts.already_know_you_password);
                 session.endDialog();
             }
         },

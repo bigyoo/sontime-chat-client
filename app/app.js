@@ -9,7 +9,7 @@ sontime.getUser('szirmayb', 'password').then(function (sontimeUser) {
 });
 */
 
-var bot = require('./bot');
+var bot = require('./bot/bot');
 
 bot.setupBot();
 bot.startBotServer();

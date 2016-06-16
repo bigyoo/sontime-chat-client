@@ -22,8 +22,28 @@ This application is build on the following technologies:
   - Speech recognition API: https://www.microsoft.com/cognitive-services/en-us/speech-api/documentation/overview
 
 ## How to run it
- - TODO
 
 ```
-node app.js
+npm install
+node app/app.js
+```
+ 
+
+## How to test
+
+```
+npm install
+npm test
+```
+You should get something like this:
+```
+$ npm test
+
+> sontime-chat-client@1.0.0 test /home/barnabas/Projects/sontime-chat-client
+> jasmine-node tests/*.spec.js
+
+..
+
+Finished in 0.032 seconds
+2 tests, 9 assertions, 0 failures, 0 skipped
 ```

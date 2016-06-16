@@ -1,9 +1,12 @@
 'use strict';
 
+const util = require('util');
 var builder = require('botbuilder');
 var restify = require('restify');
-var util = require('util');
 var prompts = require('./prompts');
+
+// TODO sontime need to be mocked in bot tests
+var sontime = require('../sontime');
 
 // Create bot
 var sontimeChatBot = {
@@ -53,6 +56,16 @@ var onLoginIntent = function (session, results) {
         session.beginDialog('/promptUserName');
     }else{
         session.send(prompts.login_intent_with_login_and_password, session.userData.login);
+
+        // TODO: here i'm just playing with sontime API
+        sontime.getUser(session.userData.login, session.userData.password)
+            .then(function (sontimeUser) {
+                session.send(util.format(prompts.login_success, session.userData.login));
+                return sontimeUser.getResource('v2/projects/100');
+            }).then(function (project) {
+                console.log(project);
+                session.send(util.format('Your project is %s, the customer is %s ',project.name, project.company.name) );
+            });
     }
 }
 
@@ -73,7 +86,7 @@ var onDefault = function (session, results) {
 /**
  * Asks for login name.
  */
-var promptUserNameDialog = [
+var  promptUserNameDialog = [
         function (session, results, next) {
             if (noUserNameInSession(session)) {
                 builder.Prompts.text(session, prompts.prompt_login_name);
